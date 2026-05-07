@@ -1,1 +1,900 @@
- 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Skill Tree</title>
+<link rel="manifest" href="/skilltree/minimal/manifest.json">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Skill Tree">
+<meta name="theme-color" content="#fafaf8">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;1,9..144,300&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #fafaf8;
+  --surface: #ffffff;
+  --surface2: #f4f3ef;
+  --border: rgba(0,0,0,0.07);
+  --border2: rgba(0,0,0,0.12);
+  --text: #1a1916;
+  --muted: #9c9a94;
+  --accent: #2d5a3d;
+  --accent2: #4a7c5f;
+  --accent-light: rgba(45,90,61,0.08);
+  --gold: #b8860b;
+  --danger: #c0392b;
+  --warn: #e67e22;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.app {
+  max-width: 480px;
+  margin: 0 auto;
+  padding-bottom: 110px;
+}
+
+/* HEADER */
+header {
+  padding: 52px 24px 28px;
+  border-bottom: 1px solid var(--border);
+}
+
+.logo {
+  font-family: 'Fraunces', serif;
+  font-size: 34px;
+  font-weight: 300;
+  color: var(--text);
+  line-height: 1;
+  margin-bottom: 6px;
+  letter-spacing: -0.02em;
+}
+
+.logo strong {
+  font-weight: 500;
+  color: var(--accent);
+}
+
+.header-sub {
+  font-size: 13px;
+  color: var(--muted);
+  font-weight: 300;
+}
+
+/* PROGRESS CARD */
+.progress-card {
+  margin: 20px 24px;
+  padding: 20px;
+  background: var(--accent);
+  border-radius: 20px;
+  color: white;
+  position: relative;
+  overflow: hidden;
+}
+
+.progress-card::before {
+  content: '';
+  position: absolute;
+  top: -40px; right: -40px;
+  width: 160px; height: 160px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.05);
+}
+
+.progress-card::after {
+  content: '';
+  position: absolute;
+  bottom: -20px; right: 30px;
+  width: 80px; height: 80px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.04);
+}
+
+.pc-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+.pc-name {
+  font-family: 'Fraunces', serif;
+  font-size: 20px;
+  font-weight: 500;
+  margin-bottom: 2px;
+}
+
+.pc-title {
+  font-size: 12px;
+  opacity: 0.65;
+  font-weight: 300;
+  letter-spacing: 0.05em;
+}
+
+.pc-level {
+  text-align: right;
+}
+
+.pc-level-num {
+  font-family: 'Fraunces', serif;
+  font-size: 40px;
+  font-weight: 300;
+  line-height: 1;
+  opacity: 0.9;
+}
+
+.pc-level-lbl {
+  font-size: 10px;
+  opacity: 0.5;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-family: 'DM Mono', monospace;
+}
+
+.pc-xp-bar {
+  height: 4px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 2px;
+  margin-bottom: 6px;
+  overflow: hidden;
+}
+
+.pc-xp-fill {
+  height: 100%;
+  background: rgba(255,255,255,0.7);
+  border-radius: 2px;
+  transition: width 1s ease;
+}
+
+.pc-xp-text {
+  font-size: 11px;
+  opacity: 0.6;
+  font-family: 'DM Mono', monospace;
+  margin-bottom: 14px;
+}
+
+.pc-stats {
+  display: flex;
+  gap: 0;
+  border-top: 1px solid rgba(255,255,255,0.1);
+  padding-top: 14px;
+}
+
+.pc-stat {
+  flex: 1;
+  text-align: center;
+  border-right: 1px solid rgba(255,255,255,0.1);
+}
+
+.pc-stat:last-child { border-right: none; }
+
+.pc-stat-val {
+  font-family: 'Fraunces', serif;
+  font-size: 20px;
+  font-weight: 300;
+}
+
+.pc-stat-lbl {
+  font-size: 9px;
+  opacity: 0.5;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-family: 'DM Mono', monospace;
+  margin-top: 1px;
+}
+
+/* SECTION */
+.section { padding: 0 24px 24px; }
+
+.section-label {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-family: 'DM Mono', monospace;
+  margin-bottom: 14px;
+  font-weight: 400;
+}
+
+/* SKILL PATH */
+.skill-path { margin-bottom: 6px; }
+
+.path-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.path-header:hover { border-color: var(--border2); }
+.path-header.open { border-radius: 14px 14px 0 0; border-bottom-color: transparent; }
+
+.path-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.path-name {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.path-pct {
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.path-chevron {
+  font-size: 12px;
+  color: var(--muted);
+  transition: transform 0.2s;
+}
+
+.path-header.open .path-chevron { transform: rotate(180deg); }
+
+.path-nodes {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-top: none;
+  border-radius: 0 0 14px 14px;
+  overflow: hidden;
+  display: none;
+}
+
+.path-nodes.open { display: block; }
+
+.skill-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.skill-row:last-child { border-bottom: none; }
+.skill-row:hover:not(.locked) { background: var(--surface2); }
+.skill-row.locked { opacity: 0.4; cursor: not-allowed; }
+
+.skill-check {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border2);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  font-size: 11px;
+  transition: all 0.2s;
+  background: white;
+}
+
+.skill-row.completed .skill-check {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: white;
+}
+
+.skill-row.active .skill-check {
+  border-color: var(--accent);
+}
+
+.skill-text { flex: 1; }
+.skill-name { font-size: 13px; font-weight: 400; color: var(--text); margin-bottom: 2px; }
+.skill-desc { font-size: 11px; color: var(--muted); }
+
+.skill-xp {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: var(--accent);
+  background: var(--accent-light);
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
+/* QUEST */
+.quest-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px 16px;
+  margin-bottom: 8px;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.quest-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 5px;
+}
+
+.daily-dot { background: var(--accent); }
+.weekly-dot { background: var(--gold); }
+.epic-dot { background: var(--danger); }
+
+.quest-body { flex: 1; }
+.quest-name { font-size: 13px; font-weight: 500; margin-bottom: 3px; }
+.quest-desc { font-size: 12px; color: var(--muted); margin-bottom: 6px; line-height: 1.5; }
+.quest-xp { font-size: 11px; color: var(--accent); font-family: 'DM Mono', monospace; }
+
+.quest-btn {
+  background: none;
+  border: 1px solid var(--border2);
+  color: var(--text);
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+  align-self: center;
+}
+
+.quest-btn:hover { background: var(--surface2); }
+.quest-btn.done { color: var(--accent); border-color: var(--accent); background: var(--accent-light); }
+
+/* ACHIEVEMENT */
+.ach-row {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  padding: 14px 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  margin-bottom: 8px;
+}
+
+.ach-icon-wrap {
+  width: 40px; height: 40px;
+  background: var(--surface2);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.ach-name { font-size: 13px; font-weight: 500; margin-bottom: 2px; }
+.ach-desc { font-size: 12px; color: var(--muted); }
+.ach-locked { opacity: 0.4; }
+
+/* MODAL */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.4);
+  backdrop-filter: blur(6px);
+  z-index: 100;
+  display: flex; align-items: flex-end;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.3s;
+}
+
+.modal-overlay.open { opacity: 1; pointer-events: all; }
+
+.modal {
+  background: var(--surface);
+  border-radius: 24px 24px 0 0;
+  padding: 28px 24px 48px;
+  width: 100%; max-width: 480px;
+  margin: 0 auto;
+  transform: translateY(100%);
+  transition: transform 0.4s cubic-bezier(0.4,0,0.2,1);
+  border-top: 1px solid var(--border);
+}
+
+.modal-overlay.open .modal { transform: translateY(0); }
+
+.modal-handle { width: 32px; height: 4px; background: var(--border2); border-radius: 2px; margin: 0 auto 20px; }
+
+.modal-title {
+  font-family: 'Fraunces', serif;
+  font-size: 22px;
+  font-weight: 300;
+  margin-bottom: 20px;
+}
+
+.form-label {
+  display: block;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-family: 'DM Mono', monospace;
+  margin-bottom: 6px;
+}
+
+.form-input {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 14px;
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  outline: none;
+  margin-bottom: 14px;
+  transition: border-color 0.2s;
+}
+
+.form-input:focus { border-color: var(--accent); }
+
+.cat-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.cat-btn {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 6px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: var(--text);
+}
+
+.cat-btn.selected { border-color: var(--accent); background: var(--accent-light); }
+.cat-emoji { font-size: 18px; display: block; margin-bottom: 3px; }
+.cat-name { font-size: 10px; color: var(--muted); }
+
+.btn-primary {
+  width: 100%;
+  padding: 15px;
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 6px;
+}
+
+.btn-primary:hover { background: var(--accent2); transform: translateY(-1px); }
+
+/* TOAST */
+.toast {
+  position: fixed;
+  top: 20px; left: 50%;
+  transform: translateX(-50%) translateY(-10px);
+  background: var(--text);
+  color: var(--bg);
+  border-radius: 20px;
+  padding: 10px 18px;
+  font-size: 13px;
+  z-index: 200;
+  opacity: 0;
+  transition: all 0.3s;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* NAV */
+.bottom-nav {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: rgba(250,250,248,0.95);
+  backdrop-filter: blur(16px);
+  border-top: 1px solid var(--border);
+  padding: 12px 0 28px;
+  display: flex;
+  justify-content: space-around;
+  max-width: 480px;
+  margin: 0 auto;
+  z-index: 50;
+}
+
+.nav-item {
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  cursor: pointer; padding: 4px 20px; border: none; background: none;
+  color: var(--muted); transition: all 0.2s; border-radius: 8px;
+  font-family: 'DM Mono', monospace;
+}
+
+.nav-item.active { color: var(--accent); }
+.nav-icon { font-size: 18px; }
+.nav-label { font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; }
+
+/* FAB */
+.fab {
+  position: fixed;
+  bottom: 88px; right: 24px;
+  width: 48px; height: 48px;
+  background: var(--accent);
+  border: none; border-radius: 14px;
+  color: white; font-size: 22px;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(45,90,61,0.25);
+  transition: all 0.2s;
+  z-index: 40;
+  display: flex; align-items: center; justify-content: center;
+}
+
+.fab:hover { transform: scale(1.05); background: var(--accent2); }
+
+/* PAGE */
+.page { display: none; }
+.page.active { display: block; animation: fadeIn 0.25s ease; }
+
+@keyframes fadeIn {
+  from { opacity:0; transform:translateY(5px); }
+  to { opacity:1; transform:translateY(0); }
+}
+
+/* profile */
+.profile-section { margin-bottom: 20px; }
+</style>
+</head>
+<body>
+
+<div class="toast" id="toast"></div>
+
+<div class="app">
+
+  <!-- PAGE: TREE -->
+  <div class="page active" id="page-tree">
+    <header>
+      <div class="logo">Skill <strong>Tree</strong></div>
+      <div class="header-sub">Your path to mastery</div>
+    </header>
+
+    <div class="progress-card">
+      <div class="pc-top">
+        <div>
+          <div class="pc-name" id="pc-name">Adventurer</div>
+          <div class="pc-title" id="pc-title">Seeker</div>
+        </div>
+        <div class="pc-level">
+          <div class="pc-level-num" id="pc-level">1</div>
+          <div class="pc-level-lbl">Level</div>
+        </div>
+      </div>
+      <div class="pc-xp-bar"><div class="pc-xp-fill" id="pc-xp-fill" style="width:0%"></div></div>
+      <div class="pc-xp-text" id="pc-xp-text">0 / 100 XP to next level</div>
+      <div class="pc-stats">
+        <div class="pc-stat"><div class="pc-stat-val" id="ps-skills">0</div><div class="pc-stat-lbl">Skills</div></div>
+        <div class="pc-stat"><div class="pc-stat-val" id="ps-quests">0</div><div class="pc-stat-lbl">Quests</div></div>
+        <div class="pc-stat"><div class="pc-stat-val" id="ps-xp">0</div><div class="pc-stat-lbl">XP</div></div>
+        <div class="pc-stat"><div class="pc-stat-val" id="ps-streak">0</div><div class="pc-stat-lbl">Streak</div></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-label">Your paths</div>
+      <div id="paths-list"></div>
+    </div>
+  </div>
+
+  <!-- PAGE: QUESTS -->
+  <div class="page" id="page-quests">
+    <header>
+      <div class="logo">Quest <strong>Log</strong></div>
+      <div class="header-sub">Daily and weekly missions</div>
+    </header>
+    <div class="section" style="padding-top:20px">
+      <div class="section-label">Active</div>
+      <div id="quests-list"></div>
+    </div>
+  </div>
+
+  <!-- PAGE: ACHIEVEMENTS -->
+  <div class="page" id="page-achievements">
+    <header>
+      <div class="logo">Achieve<strong>ments</strong></div>
+      <div class="header-sub">Milestones earned</div>
+    </header>
+    <div class="section" style="padding-top:20px">
+      <div class="section-label">All achievements</div>
+      <div id="ach-list"></div>
+    </div>
+  </div>
+
+  <!-- PAGE: PROFILE -->
+  <div class="page" id="page-profile">
+    <header>
+      <div class="logo">Your <strong>Profile</strong></div>
+      <div class="header-sub">Customize your journey</div>
+    </header>
+    <div class="section" style="padding-top:20px">
+      <div class="section-label">Identity</div>
+      <label class="form-label">Name</label>
+      <input type="text" class="form-input" id="p-name" placeholder="Your name" oninput="saveName(this.value)">
+      <label class="form-label">Title / class</label>
+      <input type="text" class="form-input" id="p-class" placeholder="e.g. Trader, Builder..." oninput="saveClass(this.value)">
+      <label class="form-label">Main goal</label>
+      <input type="text" class="form-input" id="p-goal" placeholder="What are you building toward?">
+      <div class="section-label" style="margin-top:8px">Danger zone</div>
+      <button onclick="resetData()" style="width:100%;padding:13px;background:none;border:1px solid rgba(192,57,43,0.2);color:#c0392b;border-radius:10px;font-size:13px;cursor:pointer">
+        Reset all progress
+      </button>
+    </div>
+  </div>
+
+</div>
+
+<button class="fab" id="fab" onclick="openModal()">+</button>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeOut(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Add a skill</div>
+    <label class="form-label">Skill name</label>
+    <input type="text" class="form-input" id="ns-name" placeholder="e.g. Risk management, Meal prep...">
+    <label class="form-label">What will you practice?</label>
+    <input type="text" class="form-input" id="ns-desc" placeholder="One sentence description">
+    <label class="form-label">Category</label>
+    <div class="cat-grid">
+      <div class="cat-btn" onclick="pickCat(this,'💰','Finance')"><span class="cat-emoji">💰</span><span class="cat-name">Finance</span></div>
+      <div class="cat-btn" onclick="pickCat(this,'📈','Trading')"><span class="cat-emoji">📈</span><span class="cat-name">Trading</span></div>
+      <div class="cat-btn" onclick="pickCat(this,'💪','Health')"><span class="cat-emoji">💪</span><span class="cat-name">Health</span></div>
+      <div class="cat-btn" onclick="pickCat(this,'🎨','Creative')"><span class="cat-emoji">🎨</span><span class="cat-name">Creative</span></div>
+      <div class="cat-btn" onclick="pickCat(this,'🚀','Business')"><span class="cat-emoji">🚀</span><span class="cat-name">Business</span></div>
+      <div class="cat-btn selected" onclick="pickCat(this,'⚡','Custom')"><span class="cat-emoji">⚡</span><span class="cat-name">Custom</span></div>
+    </div>
+    <label class="form-label">XP on completion</label>
+    <input type="number" class="form-input" id="ns-xp" value="25" min="5" max="500">
+    <button class="btn-primary" onclick="addSkill()">Add to tree</button>
+  </div>
+</div>
+
+<div class="bottom-nav">
+  <button class="nav-item active" onclick="showPage('tree',this)">
+    <span class="nav-icon">🌿</span><span class="nav-label">Tree</span>
+  </button>
+  <button class="nav-item" onclick="showPage('quests',this)">
+    <span class="nav-icon">📋</span><span class="nav-label">Quests</span>
+  </button>
+  <button class="nav-item" onclick="showPage('achievements',this)">
+    <span class="nav-icon">🏅</span><span class="nav-label">Earned</span>
+  </button>
+  <button class="nav-item" onclick="showPage('profile',this)">
+    <span class="nav-icon">○</span><span class="nav-label">Profile</span>
+  </button>
+</div>
+
+<script>
+const CAT_COLORS = {
+  Finance:'#b8860b', Trading:'#2980b9', Health:'#27ae60',
+  Creative:'#8e44ad', Business:'#e74c3c', Custom:'#2d5a3d'
+};
+
+const DEFAULT_SKILLS = [
+  {id:'s1',name:'Budgeting',desc:'Track income vs expenses monthly',cat:'Finance',emoji:'💰',xp:30},
+  {id:'s2',name:'Tax fundamentals',desc:'Understand deductions and filing',cat:'Finance',emoji:'💰',xp:40},
+  {id:'s3',name:'Emergency fund',desc:'Save 3–6 months of expenses',cat:'Finance',emoji:'💰',xp:50},
+  {id:'s4',name:'Market structure',desc:'Identify HH, HL, LL, LH patterns',cat:'Trading',emoji:'📈',xp:35},
+  {id:'s5',name:'Risk management',desc:'1% rule, position sizing, stop loss',cat:'Trading',emoji:'📈',xp:45},
+  {id:'s6',name:'Trade journaling',desc:'Log and review every trade',cat:'Trading',emoji:'📈',xp:30},
+  {id:'s7',name:'Meal prep',desc:'Prepare 5 days of meals weekly',cat:'Health',emoji:'💪',xp:25},
+  {id:'s8',name:'Sleep protocol',desc:'Consistent sleep and wake schedule',cat:'Health',emoji:'💪',xp:30},
+  {id:'s9',name:'Business model',desc:'Understand revenue streams',cat:'Business',emoji:'🚀',xp:40},
+  {id:'s10',name:'Personal branding',desc:'Define your online presence',cat:'Business',emoji:'🚀',xp:35},
+];
+
+const DEFAULT_QUESTS = [
+  {id:'q1',name:'Morning ritual',desc:'Complete your morning routine before checking phone',type:'daily',emoji:'🌅',xp:15,done:false},
+  {id:'q2',name:'Study session',desc:'Spend 1 hour learning a skill from your tree',type:'daily',emoji:'📚',xp:25,done:false},
+  {id:'q3',name:'Weekly review',desc:'Audit your week — what worked, what did not',type:'weekly',emoji:'🔍',xp:50,done:false},
+  {id:'q4',name:'Skill boss',desc:'Complete an entire skill path from start to finish',type:'epic',emoji:'🎯',xp:200,done:false},
+];
+
+let G = {
+  skills: JSON.parse(localStorage.getItem('st2_skills') || 'null') || DEFAULT_SKILLS,
+  quests: JSON.parse(localStorage.getItem('st2_quests') || 'null') || DEFAULT_QUESTS,
+  xp: +localStorage.getItem('st2_xp') || 0,
+  done: JSON.parse(localStorage.getItem('st2_done') || '[]'),
+  name: localStorage.getItem('st2_name') || 'Adventurer',
+  cls: localStorage.getItem('st2_cls') || 'Seeker',
+  streak: +localStorage.getItem('st2_streak') || 0,
+  cat: 'Custom', catEmoji: '⚡',
+};
+
+function save() {
+  localStorage.setItem('st2_skills', JSON.stringify(G.skills));
+  localStorage.setItem('st2_quests', JSON.stringify(G.quests));
+  localStorage.setItem('st2_xp', G.xp);
+  localStorage.setItem('st2_done', JSON.stringify(G.done));
+}
+
+function init() {
+  renderTree(); renderQuests(); renderAch(); updateCard();
+  document.getElementById('p-name').value = G.name;
+  document.getElementById('p-class').value = G.cls;
+}
+
+function updateCard() {
+  const lvl = Math.floor(G.xp / 100) + 1;
+  const xpIn = G.xp % 100;
+  document.getElementById('pc-level').textContent = lvl;
+  document.getElementById('pc-name').textContent = G.name;
+  document.getElementById('pc-title').textContent = G.cls;
+  document.getElementById('pc-xp-fill').style.width = xpIn + '%';
+  document.getElementById('pc-xp-text').textContent = `${xpIn} / 100 XP to next level`;
+  document.getElementById('ps-skills').textContent = G.done.length;
+  document.getElementById('ps-quests').textContent = G.quests.filter(q=>q.done).length;
+  document.getElementById('ps-xp').textContent = G.xp;
+  document.getElementById('ps-streak').textContent = G.streak;
+}
+
+function renderTree() {
+  const cats = [...new Set(G.skills.map(s=>s.cat))];
+  document.getElementById('paths-list').innerHTML = cats.map(cat => {
+    const skills = G.skills.filter(s => s.cat === cat);
+    const comp = skills.filter(s => G.done.includes(s.id)).length;
+    const pct = Math.round(comp/skills.length*100);
+    const color = CAT_COLORS[cat] || '#2d5a3d';
+    return `
+      <div class="skill-path">
+        <div class="path-header" onclick="togglePath(this)" id="ph-${cat}">
+          <div class="path-dot" style="background:${color}"></div>
+          <div class="path-name">${cat}</div>
+          <div class="path-pct">${pct}%</div>
+          <div class="path-chevron">▼</div>
+        </div>
+        <div class="path-nodes" id="pn-${cat}">
+          ${skills.map((s,i) => {
+            const isDone = G.done.includes(s.id);
+            const canDo = i===0 || G.done.includes(skills[i-1].id);
+            const cls = isDone ? 'completed' : canDo ? 'active' : 'locked';
+            return `
+              <div class="skill-row ${cls}" onclick="${!isDone && canDo ? `doSkill('${s.id}')` : ''}">
+                <div class="skill-check">${isDone ? '✓' : ''}</div>
+                <div class="skill-text">
+                  <div class="skill-name">${s.name}</div>
+                  <div class="skill-desc">${s.desc}</div>
+                </div>
+                <div class="skill-xp">+${s.xp}</div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function togglePath(header) {
+  const cat = header.id.replace('ph-','');
+  const nodes = document.getElementById('pn-'+cat);
+  const isOpen = nodes.classList.contains('open');
+  nodes.classList.toggle('open', !isOpen);
+  header.classList.toggle('open', !isOpen);
+}
+
+function doSkill(id) {
+  if (G.done.includes(id)) return;
+  const s = G.skills.find(x => x.id === id);
+  G.done.push(id);
+  G.xp += s.xp;
+  G.streak++;
+  save();
+  toast(`✓ ${s.name} — +${s.xp} XP`);
+  renderTree(); updateCard(); renderAch();
+}
+
+function renderQuests() {
+  document.getElementById('quests-list').innerHTML = G.quests.map(q => `
+    <div class="quest-card">
+      <div class="quest-dot ${q.type}-dot"></div>
+      <div class="quest-body">
+        <div class="quest-name">${q.name}</div>
+        <div class="quest-desc">${q.desc}</div>
+        <div class="quest-xp">+${q.xp} XP · ${q.type}</div>
+      </div>
+      <button class="quest-btn ${q.done?'done':''}" onclick="doQuest('${q.id}')">
+        ${q.done ? '✓ Done' : 'Complete'}
+      </button>
+    </div>
+  `).join('');
+}
+
+function doQuest(id) {
+  const q = G.quests.find(x=>x.id===id);
+  if (!q || q.done) return;
+  q.done = true; G.xp += q.xp; G.streak++;
+  save(); toast(`✓ ${q.name} — +${q.xp} XP`);
+  renderQuests(); updateCard(); renderAch();
+}
+
+function renderAch() {
+  const achs = [
+    {name:'First step',desc:'Complete your first skill',emoji:'✓',earned:G.done.length>=1},
+    {name:'Scholar',desc:'Complete 5 skills',emoji:'📚',earned:G.done.length>=5},
+    {name:'Century',desc:'Reach 100 XP',emoji:'💯',earned:G.xp>=100},
+    {name:'Path complete',desc:'Finish an entire skill path',emoji:'🛤',earned:false},
+    {name:'Quest runner',desc:'Complete 10 quests',emoji:'📋',earned:G.quests.filter(q=>q.done).length>=10},
+    {name:'Legend',desc:'Reach level 10',emoji:'👑',earned:Math.floor(G.xp/100)+1>=10},
+  ];
+  document.getElementById('ach-list').innerHTML = achs.map(a => `
+    <div class="ach-row ${a.earned?'':'ach-locked'}">
+      <div class="ach-icon-wrap">${a.emoji}</div>
+      <div>
+        <div class="ach-name">${a.name}</div>
+        <div class="ach-desc">${a.desc}</div>
+      </div>
+      ${a.earned ? '<span style="color:var(--accent);margin-left:auto">✦</span>' : ''}
+    </div>
+  `).join('');
+}
+
+let selCat='Custom', selEmoji='⚡';
+function pickCat(el, emoji, name) {
+  document.querySelectorAll('.cat-btn').forEach(b=>b.classList.remove('selected'));
+  el.classList.add('selected');
+  selCat=name; selEmoji=emoji;
+}
+
+function addSkill() {
+  const name = document.getElementById('ns-name').value.trim();
+  const desc = document.getElementById('ns-desc').value.trim();
+  const xp = parseInt(document.getElementById('ns-xp').value)||25;
+  if (!name) return;
+  G.skills.push({id:'c'+Date.now(),name,desc:desc||'Custom skill',cat:selCat,emoji:selEmoji,xp});
+  save(); closeModal(); renderTree();
+  toast(`Added: ${name}`);
+}
+
+function saveName(v) { G.name=v||'Adventurer'; localStorage.setItem('st2_name',G.name); updateCard(); }
+function saveClass(v) { G.cls=v||'Seeker'; localStorage.setItem('st2_cls',G.cls); updateCard(); }
+function resetData() { if(confirm('Reset everything?')) { localStorage.clear(); location.reload(); } }
+
+function showPage(name, btn) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  btn.classList.add('active');
+  document.getElementById('fab').style.display = name==='tree'?'flex':'none';
+}
+
+function openModal() { document.getElementById('modal-overlay').classList.add('open'); }
+function closeModal() { document.getElementById('modal-overlay').classList.remove('open'); }
+function closeOut(e) { if(e.target===document.getElementById('modal-overlay')) closeModal(); }
+
+function toast(msg) {
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+init();
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/skilltree/minimal/sw.js')
+      .then(() => console.log('Skill Tree Minimal: offline ready'))
+      .catch(err => console.log('SW failed:', err));
+  });
+}
+</script>
+</body>
+</html>
