@@ -1,0 +1,1220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Skill Tree — RPG</title>
+<link rel="manifest" href="/skilltree/rpg/manifest.json">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Skill Tree">
+<meta name="theme-color" content="#06060a">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #06060a;
+  --bg2: #0d0d14;
+  --bg3: #13131e;
+  --border: rgba(255,255,255,0.06);
+  --gold: #d4a843;
+  --gold2: #f0c865;
+  --fire: #ff6b35;
+  --ice: #4fc3f7;
+  --nature: #66bb6a;
+  --arcane: #ce93d8;
+  --shadow: #9e9e9e;
+  --text: #e8e4d9;
+  --muted: #6b6560;
+  --xp: #d4a843;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Crimson Pro', serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ANIMATED STARS BG */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    radial-gradient(1px 1px at 20% 30%, rgba(212,168,67,0.3) 0%, transparent 100%),
+    radial-gradient(1px 1px at 80% 10%, rgba(255,255,255,0.2) 0%, transparent 100%),
+    radial-gradient(1px 1px at 50% 60%, rgba(212,168,67,0.2) 0%, transparent 100%),
+    radial-gradient(1px 1px at 10% 80%, rgba(255,255,255,0.15) 0%, transparent 100%),
+    radial-gradient(1px 1px at 90% 70%, rgba(212,168,67,0.25) 0%, transparent 100%),
+    radial-gradient(1px 1px at 35% 90%, rgba(255,255,255,0.1) 0%, transparent 100%),
+    radial-gradient(1px 1px at 65% 40%, rgba(212,168,67,0.2) 0%, transparent 100%),
+    radial-gradient(2px 2px at 75% 85%, rgba(212,168,67,0.15) 0%, transparent 100%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(212,168,67,0.06) 0%, transparent 60%),
+    radial-gradient(ellipse at 0% 100%, rgba(206,147,216,0.04) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.app {
+  position: relative;
+  z-index: 1;
+  max-width: 480px;
+  margin: 0 auto;
+  padding-bottom: 120px;
+}
+
+/* HEADER */
+header {
+  padding: 40px 24px 20px;
+  text-align: center;
+  position: relative;
+}
+
+.logo-line {
+  font-size: 10px;
+  letter-spacing: 0.4em;
+  color: var(--gold);
+  text-transform: uppercase;
+  font-family: 'JetBrains Mono', monospace;
+  margin-bottom: 8px;
+  opacity: 0.7;
+}
+
+.logo {
+  font-family: 'Cinzel', serif;
+  font-weight: 900;
+  font-size: 32px;
+  letter-spacing: 0.1em;
+  color: var(--gold2);
+  text-shadow: 0 0 40px rgba(212,168,67,0.3), 0 0 80px rgba(212,168,67,0.1);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.logo span { color: var(--text); font-weight: 400; }
+
+.tagline {
+  font-size: 13px;
+  color: var(--muted);
+  font-style: italic;
+  letter-spacing: 0.05em;
+}
+
+/* DIVIDER */
+.rune-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 24px;
+  margin: 16px 0;
+}
+
+.rune-divider::before, .rune-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(212,168,67,0.3), transparent);
+}
+
+.rune-divider span {
+  color: var(--gold);
+  font-size: 12px;
+  opacity: 0.5;
+}
+
+/* CHARACTER CARD */
+.char-card {
+  margin: 0 24px 24px;
+  background: linear-gradient(135deg, var(--bg2), var(--bg3));
+  border: 1px solid rgba(212,168,67,0.15);
+  border-radius: 20px;
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.char-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(212,168,67,0.4), transparent);
+}
+
+.char-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.char-avatar {
+  width: 56px; height: 56px;
+  background: radial-gradient(circle, rgba(212,168,67,0.2), rgba(212,168,67,0.05));
+  border: 1px solid rgba(212,168,67,0.3);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  flex-shrink: 0;
+}
+
+.char-info { flex: 1; }
+
+.char-name {
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--gold2);
+  margin-bottom: 3px;
+}
+
+.char-class {
+  font-size: 12px;
+  color: var(--muted);
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 0.1em;
+}
+
+.char-level {
+  font-family: 'Cinzel', serif;
+  font-weight: 900;
+  font-size: 28px;
+  color: var(--gold);
+  text-align: right;
+  line-height: 1;
+}
+
+.char-level-label {
+  font-size: 9px;
+  color: var(--muted);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  font-family: 'JetBrains Mono', monospace;
+  text-align: right;
+}
+
+/* XP BAR */
+.xp-section { margin-bottom: 0; }
+
+.xp-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.xp-label {
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.xp-val {
+  font-size: 10px;
+  color: var(--gold);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.xp-bar {
+  height: 6px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.xp-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--gold), var(--gold2));
+  border-radius: 3px;
+  transition: width 1s cubic-bezier(0.4,0,0.2,1);
+  box-shadow: 0 0 8px rgba(212,168,67,0.4);
+}
+
+.stats-row {
+  display: flex;
+  gap: 8px;
+}
+
+.stat-pill {
+  flex: 1;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 8px 6px;
+  text-align: center;
+}
+
+.stat-val {
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--gold2);
+  line-height: 1;
+  margin-bottom: 2px;
+}
+
+.stat-lbl {
+  font-size: 8px;
+  color: var(--muted);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* SECTION */
+.section { padding: 0 24px 24px; }
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.section-title {
+  font-family: 'Cinzel', serif;
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold);
+  opacity: 0.7;
+}
+
+.section-header::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(212,168,67,0.2), transparent);
+}
+
+/* SKILL TREE NODE */
+.tree-container {
+  position: relative;
+}
+
+.skill-path {
+  margin-bottom: 8px;
+}
+
+.skill-path-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 14px 14px 0 0;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.skill-path-header:hover { border-color: rgba(212,168,67,0.2); }
+
+.path-icon { font-size: 20px; }
+
+.path-info { flex: 1; }
+
+.path-name {
+  font-family: 'Cinzel', serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 2px;
+}
+
+.path-progress {
+  font-size: 10px;
+  color: var(--muted);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.path-xp {
+  font-family: 'Cinzel', serif;
+  font-size: 12px;
+  color: var(--gold);
+}
+
+.path-bar {
+  height: 3px;
+  background: rgba(255,255,255,0.04);
+  border-radius: 0;
+  overflow: hidden;
+  margin: -1px 0 0;
+}
+
+.path-fill {
+  height: 100%;
+  border-radius: 0;
+  transition: width 1s ease;
+}
+
+/* SKILL NODES */
+.skill-nodes {
+  background: rgba(255,255,255,0.01);
+  border: 1px solid var(--border);
+  border-top: none;
+  border-radius: 0 0 14px 14px;
+  padding: 12px;
+  display: none;
+  gap: 8px;
+  flex-direction: column;
+}
+
+.skill-nodes.open { display: flex; }
+
+.skill-node {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+  border: 1px solid transparent;
+}
+
+.skill-node:hover { background: rgba(255,255,255,0.03); border-color: var(--border); }
+
+.skill-node.unlocked {
+  background: rgba(212,168,67,0.05);
+  border-color: rgba(212,168,67,0.15);
+}
+
+.skill-node.locked { opacity: 0.4; cursor: not-allowed; }
+.skill-node.locked:hover { background: none; border-color: transparent; }
+
+.skill-node.completed {
+  background: rgba(102,187,106,0.05);
+  border-color: rgba(102,187,106,0.15);
+}
+
+.node-icon {
+  width: 36px; height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+  border: 1px solid var(--border);
+  background: var(--bg3);
+}
+
+.skill-node.unlocked .node-icon { border-color: rgba(212,168,67,0.3); background: rgba(212,168,67,0.08); }
+.skill-node.completed .node-icon { border-color: rgba(102,187,106,0.3); background: rgba(102,187,106,0.08); }
+
+.node-info { flex: 1; }
+.node-name { font-size: 13px; color: var(--text); margin-bottom: 2px; font-family: 'Crimson Pro', serif; font-weight: 400; }
+.node-desc { font-size: 11px; color: var(--muted); line-height: 1.4; }
+
+.node-status {
+  font-size: 9px;
+  padding: 3px 8px;
+  border-radius: 8px;
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 0.08em;
+  flex-shrink: 0;
+}
+
+.status-done { background: rgba(102,187,106,0.1); color: var(--nature); border: 1px solid rgba(102,187,106,0.2); }
+.status-active { background: rgba(212,168,67,0.1); color: var(--gold); border: 1px solid rgba(212,168,67,0.2); }
+.status-locked { background: rgba(255,255,255,0.03); color: var(--muted); border: 1px solid var(--border); }
+
+/* QUESTS */
+.quest-item {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px 16px;
+  margin-bottom: 8px;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+
+.quest-item::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  border-radius: 3px 0 0 3px;
+}
+
+.quest-item.daily::before { background: var(--gold); }
+.quest-item.weekly::before { background: var(--arcane); }
+.quest-item.epic::before { background: var(--fire); }
+
+.quest-item:hover { border-color: rgba(212,168,67,0.15); }
+
+.quest-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+
+.quest-info { flex: 1; }
+.quest-name { font-size: 14px; margin-bottom: 3px; }
+.quest-desc { font-size: 12px; color: var(--muted); line-height: 1.5; margin-bottom: 6px; }
+
+.quest-reward {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--gold);
+  font-family: 'JetBrains Mono', monospace;
+  background: rgba(212,168,67,0.08);
+  padding: 2px 8px;
+  border-radius: 6px;
+  border: 1px solid rgba(212,168,67,0.15);
+}
+
+.quest-complete-btn {
+  background: none;
+  border: 1px solid rgba(212,168,67,0.2);
+  color: var(--gold);
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+  align-self: center;
+}
+
+.quest-complete-btn:hover { background: rgba(212,168,67,0.1); }
+.quest-complete-btn.done { color: var(--nature); border-color: rgba(102,187,106,0.2); background: rgba(102,187,106,0.05); }
+
+/* ADD SKILL MODAL */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.85);
+  backdrop-filter: blur(8px);
+  z-index: 100;
+  display: flex;
+  align-items: flex-end;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+
+.modal-overlay.open { opacity: 1; pointer-events: all; }
+
+.modal {
+  background: var(--bg2);
+  border: 1px solid rgba(212,168,67,0.15);
+  border-radius: 28px 28px 0 0;
+  padding: 32px 24px 48px;
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  transform: translateY(100%);
+  transition: transform 0.4s cubic-bezier(0.4,0,0.2,1);
+}
+
+.modal-overlay.open .modal { transform: translateY(0); }
+
+.modal-handle { width: 36px; height: 4px; background: var(--border); border-radius: 2px; margin: 0 auto 24px; }
+
+.modal-title {
+  font-family: 'Cinzel', serif;
+  font-size: 20px;
+  color: var(--gold2);
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.form-label {
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-family: 'JetBrains Mono', monospace;
+  margin-bottom: 6px;
+  display: block;
+}
+
+.form-input {
+  width: 100%;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 14px;
+  color: var(--text);
+  font-family: 'Crimson Pro', serif;
+  font-size: 15px;
+  outline: none;
+  margin-bottom: 14px;
+  transition: border-color 0.2s;
+}
+
+.form-input:focus { border-color: rgba(212,168,67,0.3); }
+
+.category-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.cat-btn {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 6px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: var(--text);
+}
+
+.cat-btn:hover, .cat-btn.selected {
+  border-color: rgba(212,168,67,0.3);
+  background: rgba(212,168,67,0.08);
+}
+
+.cat-emoji { font-size: 18px; display: block; margin-bottom: 3px; }
+.cat-name { font-size: 10px; color: var(--muted); font-family: 'JetBrains Mono', monospace; }
+
+.btn-gold {
+  width: 100%;
+  padding: 16px;
+  background: linear-gradient(135deg, var(--gold), var(--gold2));
+  color: #06060a;
+  border: none;
+  border-radius: 14px;
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 8px;
+}
+
+.btn-gold:hover { opacity: 0.9; transform: translateY(-1px); box-shadow: 0 8px 24px rgba(212,168,67,0.2); }
+
+/* LEVEL UP TOAST */
+.toast {
+  position: fixed;
+  top: 60px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-20px);
+  background: linear-gradient(135deg, var(--bg2), var(--bg3));
+  border: 1px solid rgba(212,168,67,0.3);
+  border-radius: 14px;
+  padding: 12px 20px;
+  z-index: 200;
+  opacity: 0;
+  transition: all 0.4s;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+.toast-text {
+  font-family: 'Cinzel', serif;
+  font-size: 13px;
+  color: var(--gold2);
+  text-align: center;
+}
+
+/* NAV */
+.bottom-nav {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  z-index: 50;
+  background: rgba(6,6,10,0.95);
+  backdrop-filter: blur(20px);
+  border-top: 1px solid rgba(212,168,67,0.08);
+  padding: 12px 0 28px;
+  display: flex;
+  justify-content: space-around;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  padding: 4px 20px;
+  border-radius: 12px;
+  transition: all 0.2s;
+  border: none;
+  background: none;
+  color: var(--muted);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.nav-item.active { color: var(--gold); }
+.nav-icon { font-size: 18px; }
+.nav-label { font-size: 8px; letter-spacing: 0.12em; text-transform: uppercase; }
+
+/* PAGES */
+.page { display: none; }
+.page.active { display: block; animation: fadeIn 0.3s ease; }
+
+@keyframes fadeIn {
+  from { opacity:0; transform:translateY(6px); }
+  to { opacity:1; transform:translateY(0); }
+}
+
+/* FAB */
+.fab {
+  position: fixed;
+  bottom: 88px;
+  right: 24px;
+  width: 52px; height: 52px;
+  background: linear-gradient(135deg, var(--gold), var(--gold2));
+  border: none;
+  border-radius: 16px;
+  font-size: 24px;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(212,168,67,0.3);
+  transition: all 0.2s;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #06060a;
+}
+
+.fab:hover { transform: scale(1.05); box-shadow: 0 8px 28px rgba(212,168,67,0.4); }
+
+/* ACHIEVEMENTS */
+.achievement {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  padding: 14px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  margin-bottom: 8px;
+  transition: all 0.2s;
+}
+
+.ach-icon {
+  font-size: 28px;
+  width: 48px; height: 48px;
+  background: var(--bg3);
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  border: 1px solid var(--border);
+}
+
+.ach-info { flex: 1; }
+.ach-name { font-family: 'Cinzel', serif; font-size: 13px; color: var(--gold2); margin-bottom: 3px; }
+.ach-desc { font-size: 12px; color: var(--muted); }
+
+.ach-locked { opacity: 0.35; filter: grayscale(1); }
+</style>
+</head>
+<body>
+
+<div class="toast" id="toast">
+  <div class="toast-text" id="toast-text">⚔ Skill Unlocked!</div>
+</div>
+
+<div class="app">
+
+  <!-- PAGE: TREE -->
+  <div class="page active" id="page-tree">
+    <header>
+      <div class="logo-line">◈ Real Life ◈</div>
+      <div class="logo">SKILL <span>TREE</span></div>
+      <div class="tagline">Master the game of life</div>
+    </header>
+
+    <div class="rune-divider"><span>⟡</span></div>
+
+    <!-- CHARACTER -->
+    <div class="char-card">
+      <div class="char-header">
+        <div class="char-avatar">⚔</div>
+        <div class="char-info">
+          <div class="char-name" id="char-name">Adventurer</div>
+          <div class="char-class" id="char-class">CLASS · SEEKER</div>
+        </div>
+        <div>
+          <div class="char-level" id="char-level">1</div>
+          <div class="char-level-label">Level</div>
+        </div>
+      </div>
+      <div class="xp-section">
+        <div class="xp-header">
+          <span class="xp-label">Experience</span>
+          <span class="xp-val" id="xp-text">0 / 100 XP</span>
+        </div>
+        <div class="xp-bar"><div class="xp-fill" id="xp-fill" style="width:0%"></div></div>
+        <div class="stats-row" id="stats-row">
+          <div class="stat-pill"><div class="stat-val" id="s-skills">0</div><div class="stat-lbl">Skills</div></div>
+          <div class="stat-pill"><div class="stat-val" id="s-quests">0</div><div class="stat-lbl">Quests</div></div>
+          <div class="stat-pill"><div class="stat-val" id="s-xp">0</div><div class="stat-lbl">Total XP</div></div>
+          <div class="stat-pill"><div class="stat-val" id="s-streak">0</div><div class="stat-lbl">Streak</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SKILL PATHS -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-title">Skill Paths</div>
+      </div>
+      <div id="skill-paths"></div>
+    </div>
+
+  </div>
+
+  <!-- PAGE: QUESTS -->
+  <div class="page" id="page-quests">
+    <header>
+      <div class="logo-line">◈ Daily Missions ◈</div>
+      <div class="logo" style="font-size:26px">QUEST <span>LOG</span></div>
+    </header>
+
+    <div class="rune-divider"><span>⟡</span></div>
+
+    <div class="section">
+      <div class="section-header"><div class="section-title">Active Quests</div></div>
+      <div id="quests-list"></div>
+    </div>
+  </div>
+
+  <!-- PAGE: ACHIEVEMENTS -->
+  <div class="page" id="page-achievements">
+    <header>
+      <div class="logo-line">◈ Hall of Glory ◈</div>
+      <div class="logo" style="font-size:22px">ACHIEVE<span>MENTS</span></div>
+    </header>
+
+    <div class="rune-divider"><span>⟡</span></div>
+
+    <div class="section">
+      <div class="section-header"><div class="section-title">Earned</div></div>
+      <div id="achievements-list"></div>
+    </div>
+  </div>
+
+  <!-- PAGE: PROFILE -->
+  <div class="page" id="page-profile">
+    <header>
+      <div class="logo-line">◈ Character ◈</div>
+      <div class="logo" style="font-size:26px">PROFILE</div>
+    </header>
+
+    <div class="rune-divider"><span>⟡</span></div>
+
+    <div class="section">
+      <div class="section-header"><div class="section-title">Identity</div></div>
+      <label class="form-label">Your name</label>
+      <input type="text" class="form-input" id="profile-name" placeholder="Enter your name..." oninput="saveName(this.value)">
+      <label class="form-label">Your class / title</label>
+      <input type="text" class="form-input" id="profile-class" placeholder="e.g. Trader, Builder, Creator..." oninput="saveClass(this.value)">
+      <label class="form-label">Your main quest</label>
+      <input type="text" class="form-input" id="profile-goal" placeholder="What are you building toward?">
+
+      <div class="section-header" style="margin-top:8px"><div class="section-title">Reset</div></div>
+      <button onclick="resetData()" style="width:100%;padding:14px;background:rgba(255,92,92,0.08);border:1px solid rgba(255,92,92,0.15);color:#ff6b6b;border-radius:12px;font-family:'Cinzel',serif;font-size:13px;cursor:pointer;letter-spacing:0.08em">
+        ⚠ Reset All Progress
+      </button>
+    </div>
+  </div>
+
+</div>
+
+<!-- FAB -->
+<button class="fab" id="fab" onclick="openModal()">+</button>
+
+<!-- MODAL: ADD SKILL -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModalOutside(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Add New Skill</div>
+
+    <label class="form-label">Skill name</label>
+    <input type="text" class="form-input" id="new-skill-name" placeholder="e.g. Technical Analysis, Meal Prep...">
+
+    <label class="form-label">Description</label>
+    <input type="text" class="form-input" id="new-skill-desc" placeholder="What will you learn or do?">
+
+    <label class="form-label">Category</label>
+    <div class="category-grid">
+      <div class="cat-btn" onclick="selectCat(this,'💰','Finance')"><span class="cat-emoji">💰</span><span class="cat-name">Finance</span></div>
+      <div class="cat-btn" onclick="selectCat(this,'📈','Trading')"><span class="cat-emoji">📈</span><span class="cat-name">Trading</span></div>
+      <div class="cat-btn" onclick="selectCat(this,'💪','Health')"><span class="cat-emoji">💪</span><span class="cat-name">Health</span></div>
+      <div class="cat-btn" onclick="selectCat(this,'🎨','Creative')"><span class="cat-emoji">🎨</span><span class="cat-name">Creative</span></div>
+      <div class="cat-btn" onclick="selectCat(this,'🚀','Business')"><span class="cat-emoji">🚀</span><span class="cat-name">Business</span></div>
+      <div class="cat-btn" onclick="selectCat(this,'⚡','Custom')"><span class="cat-emoji">⚡</span><span class="cat-name">Custom</span></div>
+    </div>
+
+    <label class="form-label">XP reward on completion</label>
+    <input type="number" class="form-input" id="new-skill-xp" placeholder="25" value="25" min="5" max="500">
+
+    <button class="btn-gold" onclick="addSkill()">⚔ Forge This Skill</button>
+  </div>
+</div>
+
+<!-- NAV -->
+<div class="bottom-nav">
+  <button class="nav-item active" onclick="showPage('tree',this)">
+    <span class="nav-icon">🌳</span><span class="nav-label">Tree</span>
+  </button>
+  <button class="nav-item" onclick="showPage('quests',this)">
+    <span class="nav-icon">⚔</span><span class="nav-label">Quests</span>
+  </button>
+  <button class="nav-item" onclick="showPage('achievements',this)">
+    <span class="nav-icon">🏆</span><span class="nav-label">Glory</span>
+  </button>
+  <button class="nav-item" onclick="showPage('profile',this)">
+    <span class="nav-icon">👤</span><span class="nav-label">Profile</span>
+  </button>
+</div>
+
+<script>
+// ═══════════════════════════
+// DATA
+// ═══════════════════════════
+const DEFAULT_SKILLS = [
+  { id:'s1', name:'Budgeting', desc:'Track income vs expenses monthly', cat:'Finance', emoji:'💰', xp:30, status:'unlocked' },
+  { id:'s2', name:'Tax fundamentals', desc:'Understand deductions and filing', cat:'Finance', emoji:'💰', xp:40, status:'locked' },
+  { id:'s3', name:'Emergency fund', desc:'Save 3-6 months expenses', cat:'Finance', emoji:'💰', xp:50, status:'locked' },
+  { id:'s4', name:'Market structure', desc:'Identify HH, HL, LL, LH patterns', cat:'Trading', emoji:'📈', xp:35, status:'unlocked' },
+  { id:'s5', name:'Risk management', desc:'1% rule, position sizing, stop loss', cat:'Trading', emoji:'📈', xp:45, status:'locked' },
+  { id:'s6', name:'Trade journaling', desc:'Log and review every trade', cat:'Trading', emoji:'📈', xp:30, status:'locked' },
+  { id:'s7', name:'Meal prep', desc:'Prepare 5 days of meals weekly', cat:'Health', emoji:'💪', xp:25, status:'unlocked' },
+  { id:'s8', name:'Sleep protocol', desc:'Consistent sleep/wake schedule', cat:'Health', emoji:'💪', xp:30, status:'locked' },
+  { id:'s9', name:'Business model', desc:'Understand revenue streams', cat:'Business', emoji:'🚀', xp:40, status:'unlocked' },
+  { id:'s10', name:'Personal branding', desc:'Define your online presence', cat:'Business', emoji:'🚀', xp:35, status:'locked' },
+];
+
+const DEFAULT_QUESTS = [
+  { id:'q1', name:'Morning Ritual', desc:'Complete your morning routine before checking phone', type:'daily', emoji:'🌅', xp:15, done:false },
+  { id:'q2', name:'Study Session', desc:'Spend 1 hour learning a skill from your tree', type:'daily', emoji:'📚', xp:25, done:false },
+  { id:'q3', name:'Weekly Review', desc:'Audit your week — what worked, what didn\'t', type:'weekly', emoji:'🔍', xp:50, done:false },
+  { id:'q4', name:'Skill Boss', desc:'Complete an entire skill path from start to finish', type:'epic', emoji:'⚔', xp:200, done:false },
+];
+
+let state = {
+  skills: JSON.parse(localStorage.getItem('skilltree_skills') || 'null') || DEFAULT_SKILLS,
+  quests: JSON.parse(localStorage.getItem('skilltree_quests') || 'null') || DEFAULT_QUESTS,
+  xp: parseInt(localStorage.getItem('skilltree_xp') || '0'),
+  completedSkills: JSON.parse(localStorage.getItem('skilltree_completed') || '[]'),
+  name: localStorage.getItem('skilltree_name') || 'Adventurer',
+  charClass: localStorage.getItem('skilltree_class') || 'Seeker',
+  streak: parseInt(localStorage.getItem('skilltree_streak') || '0'),
+  selectedCat: null,
+  selectedCatEmoji: null,
+};
+
+// ═══════════════════════════
+// INIT
+// ═══════════════════════════
+function init() {
+  renderTree();
+  renderQuests();
+  renderAchievements();
+  updateCharacter();
+  loadProfile();
+}
+
+function save() {
+  localStorage.setItem('skilltree_skills', JSON.stringify(state.skills));
+  localStorage.setItem('skilltree_quests', JSON.stringify(state.quests));
+  localStorage.setItem('skilltree_xp', state.xp);
+  localStorage.setItem('skilltree_completed', JSON.stringify(state.completedSkills));
+}
+
+// ═══════════════════════════
+// CHARACTER
+// ═══════════════════════════
+function updateCharacter() {
+  const level = Math.floor(state.xp / 100) + 1;
+  const xpInLevel = state.xp % 100;
+  const pct = xpInLevel;
+
+  document.getElementById('char-level').textContent = level;
+  document.getElementById('char-name').textContent = state.name;
+  document.getElementById('char-class').textContent = 'CLASS · ' + state.charClass.toUpperCase();
+  document.getElementById('xp-text').textContent = `${xpInLevel} / 100 XP`;
+  document.getElementById('xp-fill').style.width = pct + '%';
+
+  const completed = state.completedSkills.length;
+  const doneQuests = state.quests.filter(q => q.done).length;
+  document.getElementById('s-skills').textContent = completed;
+  document.getElementById('s-quests').textContent = doneQuests;
+  document.getElementById('s-xp').textContent = state.xp;
+  document.getElementById('s-streak').textContent = state.streak;
+}
+
+// ═══════════════════════════
+// SKILL TREE
+// ═══════════════════════════
+function renderTree() {
+  const categories = ['Finance','Trading','Health','Creative','Business','Custom'];
+  const catMeta = {
+    Finance: { emoji:'💰', color:'#d4a843', label:'Financial Freedom' },
+    Trading: { emoji:'📈', color:'#4fc3f7', label:'Market Mastery' },
+    Health: { emoji:'💪', color:'#66bb6a', label:'Physical Dominion' },
+    Creative: { emoji:'🎨', color:'#ce93d8', label:'Creative Force' },
+    Business: { emoji:'🚀', color:'#ff6b35', label:'Empire Building' },
+    Custom: { emoji:'⚡', color:'#d4a843', label:'Custom Path' },
+  };
+
+  const el = document.getElementById('skill-paths');
+  let html = '';
+
+  categories.forEach(cat => {
+    const skills = state.skills.filter(s => s.cat === cat);
+    if (!skills.length) return;
+
+    const meta = catMeta[cat];
+    const completed = skills.filter(s => state.completedSkills.includes(s.id)).length;
+    const pct = Math.round((completed / skills.length) * 100);
+
+    html += `
+      <div class="skill-path" id="path-${cat}">
+        <div class="skill-path-header" onclick="togglePath('${cat}')">
+          <div class="path-icon">${meta.emoji}</div>
+          <div class="path-info">
+            <div class="path-name">${meta.label}</div>
+            <div class="path-progress">${completed}/${skills.length} skills · ${pct}%</div>
+          </div>
+          <div class="path-xp">${pct}%</div>
+        </div>
+        <div class="path-bar">
+          <div class="path-fill" style="width:${pct}%;background:${meta.color}"></div>
+        </div>
+        <div class="skill-nodes" id="nodes-${cat}">
+          ${skills.map((s,i) => {
+            const isDone = state.completedSkills.includes(s.id);
+            const isFirst = i === 0;
+            const prevDone = i === 0 || state.completedSkills.includes(skills[i-1].id);
+            const isUnlocked = isFirst || prevDone;
+            const statusClass = isDone ? 'completed' : isUnlocked ? 'unlocked' : 'locked';
+            const statusLabel = isDone ? 'DONE' : isUnlocked ? 'ACTIVE' : 'LOCKED';
+            const statusStyle = isDone ? 'status-done' : isUnlocked ? 'status-active' : 'status-locked';
+            return `
+              <div class="skill-node ${statusClass}" onclick="${!isDone && isUnlocked ? `completeSkill('${s.id}')` : ''}">
+                <div class="node-icon">${isDone ? '✓' : s.emoji}</div>
+                <div class="node-info">
+                  <div class="node-name">${s.name}</div>
+                  <div class="node-desc">${s.desc} · +${s.xp} XP</div>
+                </div>
+                <span class="node-status ${statusStyle}">${statusLabel}</span>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      </div>
+    `;
+  });
+
+  el.innerHTML = html;
+}
+
+function togglePath(cat) {
+  const nodes = document.getElementById('nodes-' + cat);
+  nodes.classList.toggle('open');
+}
+
+function completeSkill(id) {
+  if (state.completedSkills.includes(id)) return;
+  const skill = state.skills.find(s => s.id === id);
+  if (!skill) return;
+
+  state.completedSkills.push(id);
+  state.xp += skill.xp;
+  state.streak += 1;
+  save();
+
+  showToast(`⚔ ${skill.name} mastered! +${skill.xp} XP`);
+  renderTree();
+  updateCharacter();
+  renderAchievements();
+}
+
+// ═══════════════════════════
+// QUESTS
+// ═══════════════════════════
+function renderQuests() {
+  const el = document.getElementById('quests-list');
+  el.innerHTML = state.quests.map(q => `
+    <div class="quest-item ${q.type}">
+      <div class="quest-icon">${q.emoji}</div>
+      <div class="quest-info">
+        <div class="quest-name">${q.name}</div>
+        <div class="quest-desc">${q.desc}</div>
+        <div class="quest-reward">⚡ +${q.xp} XP</div>
+      </div>
+      <button class="quest-complete-btn ${q.done ? 'done' : ''}" onclick="completeQuest('${q.id}')">
+        ${q.done ? '✓ Done' : 'Complete'}
+      </button>
+    </div>
+  `).join('');
+}
+
+function completeQuest(id) {
+  const quest = state.quests.find(q => q.id === id);
+  if (!quest || quest.done) return;
+  quest.done = true;
+  state.xp += quest.xp;
+  state.streak += 1;
+  save();
+  showToast(`🏆 Quest done! +${quest.xp} XP`);
+  renderQuests();
+  updateCharacter();
+  renderAchievements();
+}
+
+// ═══════════════════════════
+// ACHIEVEMENTS
+// ═══════════════════════════
+function renderAchievements() {
+  const achs = [
+    { name:'First Blood', desc:'Complete your first skill', emoji:'⚔', earned: state.completedSkills.length >= 1 },
+    { name:'Scholar', desc:'Complete 5 skills', emoji:'📚', earned: state.completedSkills.length >= 5 },
+    { name:'Centurion', desc:'Reach 100 XP', emoji:'💯', earned: state.xp >= 100 },
+    { name:'Path Walker', desc:'Complete an entire skill path', emoji:'🛤', earned: false },
+    { name:'Quest Master', desc:'Complete 10 quests', emoji:'⚡', earned: state.quests.filter(q=>q.done).length >= 10 },
+    { name:'Legend', desc:'Reach level 10', emoji:'👑', earned: Math.floor(state.xp/100)+1 >= 10 },
+  ];
+
+  document.getElementById('achievements-list').innerHTML = achs.map(a => `
+    <div class="achievement ${a.earned ? '' : 'ach-locked'}">
+      <div class="ach-icon">${a.emoji}</div>
+      <div class="ach-info">
+        <div class="ach-name">${a.name}</div>
+        <div class="ach-desc">${a.desc}</div>
+      </div>
+      ${a.earned ? '<span style="color:var(--gold);font-size:18px">✦</span>' : ''}
+    </div>
+  `).join('');
+}
+
+// ═══════════════════════════
+// ADD SKILL
+// ═══════════════════════════
+let selectedCat = 'Custom', selectedEmoji = '⚡';
+
+function selectCat(el, emoji, name) {
+  document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedCat = name;
+  selectedEmoji = emoji;
+}
+
+function addSkill() {
+  const name = document.getElementById('new-skill-name').value.trim();
+  const desc = document.getElementById('new-skill-desc').value.trim();
+  const xp = parseInt(document.getElementById('new-skill-xp').value) || 25;
+  if (!name) return;
+
+  const newSkill = {
+    id: 'custom_' + Date.now(),
+    name, desc: desc || 'Custom skill',
+    cat: selectedCat,
+    emoji: selectedEmoji,
+    xp, status: 'unlocked'
+  };
+
+  state.skills.push(newSkill);
+  save();
+  closeModal();
+  renderTree();
+  showToast(`✦ ${name} added to your tree!`);
+}
+
+// ═══════════════════════════
+// PROFILE
+// ═══════════════════════════
+function loadProfile() {
+  document.getElementById('profile-name').value = state.name;
+  document.getElementById('profile-class').value = state.charClass;
+}
+
+function saveName(v) {
+  state.name = v || 'Adventurer';
+  localStorage.setItem('skilltree_name', state.name);
+  updateCharacter();
+}
+
+function saveClass(v) {
+  state.charClass = v || 'Seeker';
+  localStorage.setItem('skilltree_class', state.charClass);
+  updateCharacter();
+}
+
+function resetData() {
+  if (!confirm('Reset ALL progress? This cannot be undone.')) return;
+  localStorage.clear();
+  location.reload();
+}
+
+// ═══════════════════════════
+// UI HELPERS
+// ═══════════════════════════
+function showPage(name, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  btn.classList.add('active');
+  document.getElementById('fab').style.display = name === 'tree' ? 'flex' : 'none';
+}
+
+function openModal() {
+  document.getElementById('modal-overlay').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+}
+
+function closeModalOutside(e) {
+  if (e.target === document.getElementById('modal-overlay')) closeModal();
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  document.getElementById('toast-text').textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+init();
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/skilltree/rpg/sw.js')
+      .then(() => console.log('Skill Tree RPG: offline ready'))
+      .catch(err => console.log('SW failed:', err));
+  });
+}
+</script>
+</body>
+</html>
